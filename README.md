@@ -1,1 +1,1 @@
-# electricity_linear_regression_model
+# linear_regression_model
