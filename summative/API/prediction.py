@@ -63,8 +63,8 @@ app = FastAPI(
 # The Flutter mobile app is not a browser, so CORS does not restrict it; it calls the API directly.
 # ---------------------------------------------------------------------------
 ALLOWED_ORIGINS = [
-    # replace with your real Render URL after deploying
-    "https://solar-price-api.onrender.com",
+    # the deployed API on Render (Swagger UI is served from here)
+    "https://linear-regression-model-k2sr.onrender.com",
     # Flutter web debug: flutter run -d chrome --web-port 8080
     "http://localhost:8080",
     "http://127.0.0.1:8080",
