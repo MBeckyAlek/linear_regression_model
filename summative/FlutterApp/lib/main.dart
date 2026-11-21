@@ -1,5 +1,4 @@
-// Electra: estimates the upfront price of a solar device in Kenya by calling the deployed
-// Solar Device Price API (see api.dart).
+// Electra - estimates what a solar device costs upfront in Kenya.
 
 import 'package:flutter/material.dart';
 
@@ -12,7 +11,7 @@ void main() => runApp(const ElectraApp());
 class ElectraApp extends StatefulWidget {
   const ElectraApp({super.key, this.api});
 
-  /// Lets tests pass in a fake API; the app uses the real one.
+  /// for tests
   final PredictionApi? api;
 
   @override
@@ -22,7 +21,7 @@ class ElectraApp extends StatefulWidget {
 class _ElectraAppState extends State<ElectraApp> {
   late final PredictionApi _api = widget.api ?? PredictionApi();
 
-  // Follows the phone's light/dark setting until the user taps the toggle in the header.
+  // follows the phone until the user hits the toggle
   ThemeMode _mode = ThemeMode.system;
 
   @override

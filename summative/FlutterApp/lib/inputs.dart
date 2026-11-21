@@ -1,10 +1,6 @@
-// The 10 inputs the model needs, and the checks run on them before calling the API.
-//
-// Every input is a text field. Text the user types is matched to the exact value the API expects
-// (for example "installments" -> "Bought, under installment"), case-insensitively. Anything that
-// cannot be matched, is missing, has the wrong type or is out of range becomes a readable message.
+// The 10 inputs and the checks we run before calling the API.
+// Typed text is loosely matched to what the API expects, e.g. "installments" -> "Bought, under installment".
 
-/// API field names, in the order they appear on the page.
 class Fields {
   static const deviceType = 'device_type';
   static const acquisition = 'acquisition';
@@ -22,7 +18,6 @@ class Fields {
     rooms, mobilePhones, ownsDwelling, gridConnected, hasBankAccount,
   ];
 
-  /// Labels shown above each text field.
   static const labels = {
     deviceType: 'Type of device',
     acquisition: 'Payment',
@@ -36,7 +31,7 @@ class Fields {
     hasBankAccount: 'Does anyone have a bank account?',
   };
 
-  /// Short names used inside error messages.
+  // used in error messages
   static const shortNames = {
     deviceType: 'Type of device',
     acquisition: 'Payment',
@@ -51,14 +46,13 @@ class Fields {
   };
 }
 
-/// Device types: what the user sees, and the value the API expects.
+// display name -> API value
 const deviceTypes = {
   'Solar Lantern': 'Solar Lantern',
   'Solar lighting system': 'Solar lighting System',
   'Solar home system': 'Solar home system (Solar PV system)',
 };
 
-/// Counties accepted by the API (survey spelling).
 const counties = [
   'Baringo', 'Bomet', 'Bungoma', 'Busia', 'Elgeyo Marakwet', 'Embu', 'Garissa', 'Homa Bay',
   'Isiolo', 'Kajiado', 'Kakamega', 'Kericho', 'Kiambu', 'Kilifi', 'Kirinyaga', 'Kisii', 'Kisumu',
@@ -68,7 +62,7 @@ const counties = [
   'Turkana', 'Uasin Gishu', 'Vihiga', 'Wajir', 'West Pokot',
 ];
 
-/// Lower-case letters only, so "Tana River", "tana-river" and "Murang'a" match the survey spelling.
+// letters only, so "Tana River" and "tana-river" both match
 String _key(String s) => s.toLowerCase().replaceAll(RegExp(r'[^a-z]'), '');
 
 final Map<String, String> _deviceAliases = {
@@ -96,10 +90,8 @@ const _acquisitionAliases = {
 
 final Map<String, String> _countyKeys = {for (final c in counties) _key(c): c};
 
-/// Returns the display name of a device type, or null if the text matches none.
 String? matchDeviceType(String text) => _deviceAliases[_key(text)];
 
-/// Returns the survey spelling of a county, or null if the text matches none.
 String? matchCounty(String text) => _countyKeys[_key(text)];
 
 String? _matchYesNo(String text) => switch (_key(text)) {
@@ -114,23 +106,17 @@ String? _matchArea(String text) => switch (_key(text)) {
       _ => null,
     };
 
-/// The outcome of checking the form.
 class CheckResult {
   CheckResult(this.body, this.errors, this.missing);
 
-  /// JSON body for POST /predict; null when there are errors.
+  /// null if anything failed
   final Map<String, Object>? body;
-
-  /// One readable message per field that needs fixing, keyed by API field name, in page order.
   final Map<String, String> errors;
-
-  /// Fields that were left empty (shown as "Required" under the field).
   final Set<String> missing;
 
   bool get isValid => body != null;
 }
 
-/// Checks the raw text of all 10 fields (keyed by API field name).
 CheckResult checkInputs(Map<String, String> raw) {
   final errors = <String, String>{};
   final missing = <String>{};
@@ -191,7 +177,6 @@ CheckResult checkInputs(Map<String, String> raw) {
   category(Fields.gridConnected, _matchYesNo, 'Yes or No');
   category(Fields.hasBankAccount, _matchYesNo, 'Yes or No');
 
-  // keep the messages in page order
   final ordered = {for (final f in Fields.all) if (errors.containsKey(f)) f: errors[f]!};
   return CheckResult(ordered.isEmpty ? body : null, ordered, missing);
 }

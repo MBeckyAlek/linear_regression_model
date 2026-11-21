@@ -1,5 +1,4 @@
-// The app's single page: 10 labelled text fields, a Predict button and one result area that shows
-// either the predicted price or a readable error.
+// The main (and only) screen: the form, the Predict button and the result.
 
 import 'dart:async';
 
@@ -10,7 +9,6 @@ import 'api.dart';
 import 'inputs.dart';
 import 'theme.dart';
 
-/// What the result area is showing.
 sealed class Outcome {}
 
 class Idle extends Outcome {}
@@ -41,7 +39,7 @@ class PredictPage extends StatefulWidget {
 }
 
 class _PredictPageState extends State<PredictPage> {
-  // Starting values, matching the design. Every field can be edited or cleared.
+  // defaults from the design
   static const _initial = {
     Fields.deviceType: 'Solar Lantern',
     Fields.acquisition: 'Fully paid',
@@ -75,8 +73,7 @@ class _PredictPageState extends State<PredictPage> {
     _scrollUpWhenFocused(_countyFocus);
   }
 
-  /// Moves a suggestion field near the top of the screen once the keyboard is up,
-  /// so its list of suggestions has room below it.
+  // give the suggestion list room once the keyboard opens
   void _scrollUpWhenFocused(FocusNode node) {
     node.addListener(() {
       if (!node.hasFocus) return;
@@ -100,7 +97,6 @@ class _PredictPageState extends State<PredictPage> {
     super.dispose();
   }
 
-  /// Editing a field clears its red outline straight away.
   void _edited(String field) {
     if (_errors.containsKey(field)) {
       setState(() {
@@ -113,7 +109,7 @@ class _PredictPageState extends State<PredictPage> {
   Future<void> _predict() async {
     FocusScope.of(context).unfocus();
 
-    // 1. Check the inputs in the app first, so mistakes get a clear message straight away.
+    // catch obvious mistakes before hitting the API
     final check = checkInputs({for (final e in _controllers.entries) e.key: e.value.text});
     setState(() {
       _errors = check.errors;
@@ -128,7 +124,6 @@ class _PredictPageState extends State<PredictPage> {
       return;
     }
 
-    // 2. Send the inputs to the API and show the price, or the error it returns.
     setState(() {
       _outcome = Loading();
       _slow = false;
@@ -152,7 +147,6 @@ class _PredictPageState extends State<PredictPage> {
     _revealResult();
   }
 
-  /// Scrolls so the result area is on screen.
   void _revealResult() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final ctx = _resultKey.currentContext;
@@ -201,7 +195,6 @@ class _PredictPageState extends State<PredictPage> {
         );
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      // status bar and navigation bar follow the app's light/dark mode
       value: (widget.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark).copyWith(
         statusBarColor: Colors.transparent,
         systemNavigationBarColor: c.background,
@@ -359,10 +352,6 @@ class _PredictPageState extends State<PredictPage> {
   }
 }
 
-// ---------------------------------------------------------------------------------------------
-// Building blocks
-// ---------------------------------------------------------------------------------------------
-
 class _Header extends StatelessWidget {
   const _Header({required this.isDark, required this.onToggleTheme});
   final bool isDark;
@@ -434,7 +423,7 @@ class _Card extends StatelessWidget {
   }
 }
 
-/// A label above an input, with a hint line below it that turns red when the input needs fixing.
+/// Label, input and a hint that turns red on errors.
 class _Field extends StatelessWidget {
   const _Field({required this.label, required this.child, this.helper, this.error = false, this.missing = false});
   final String label;
@@ -463,7 +452,6 @@ class _Field extends StatelessWidget {
   }
 }
 
-/// The styled text field used for every input.
 class _Input extends StatelessWidget {
   const _Input({
     required this.controller,
@@ -541,7 +529,7 @@ class _Input extends StatelessWidget {
   }
 }
 
-/// A text field that suggests matching options as you type (device type, county).
+/// Text field with autocomplete (device type, county).
 class _SuggestInput extends StatelessWidget {
   const _SuggestInput({
     required this.fieldKey,

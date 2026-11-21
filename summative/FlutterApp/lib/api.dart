@@ -1,7 +1,4 @@
-// Calls the deployed FastAPI service.
-//
-// POST {apiBaseUrl}/predict with the 10 inputs as JSON, and read back "predicted_price_kes".
-// Any failure becomes a PredictionException with sentences the page can show as they are.
+// Talks to the deployed API. Errors come back as PredictionException with messages ready to show.
 
 import 'dart:async';
 import 'dart:convert';
@@ -11,10 +8,9 @@ import 'package:http/http.dart' as http;
 
 import 'inputs.dart';
 
-/// The public Render URL of the API (Swagger UI: $apiBaseUrl/docs).
 const apiBaseUrl = 'https://linear-regression-model-k2sr.onrender.com';
 
-/// A free Render service can take up to a minute to wake up, so allow for that.
+/// Free Render instances can take about a minute to wake up.
 const requestTimeout = Duration(seconds: 90);
 
 class PredictionException implements Exception {
@@ -30,7 +26,6 @@ class PredictionApi {
   PredictionApi({http.Client? client}) : _client = client ?? http.Client();
   final http.Client _client;
 
-  /// Sends one device to /predict and returns the predicted upfront price in KES.
   Future<double> predict(Map<String, Object> body) async {
     final http.Response response;
     try {
@@ -75,7 +70,7 @@ class PredictionApi {
 
 String _count(int n) => n == 1 ? '1 field needs' : '$n fields need';
 
-/// Turns FastAPI's 422 body ({"detail": [{"loc": ["body", "rooms"], "msg": "..."}]}) into sentences.
+/// Turns FastAPI's 422 error list into readable sentences.
 List<String> validationMessages(String responseBody) {
   try {
     final detail = (jsonDecode(responseBody) as Map<String, dynamic>)['detail'];
@@ -86,8 +81,6 @@ List<String> validationMessages(String responseBody) {
               '${item['msg']}.'
       ];
     }
-  } catch (_) {
-    // fall through to the generic message
-  }
+  } catch (_) {}
   return ['The server rejected one of the values. Check the fields and try again.'];
 }
